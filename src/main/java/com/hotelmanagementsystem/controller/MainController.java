@@ -136,6 +136,11 @@ public class MainController {
 
             if (name.isEmpty() || contact.isEmpty()) { showAlert("Guest name and contact are required."); return; }
 
+            if (!contact.matches("\\d{10}")) {
+                showAlert("Phone number must be exactly 10 digits.");
+                return;
+            }
+
             service.bookIfAvailable(name, contact, roomNo, days);
             showAlert("Room " + roomNo + " booked for " + name + " (" + days + " days).");
             customerNameField.clear(); contactField.clear(); bookRoomField.clear(); daysField.clear();

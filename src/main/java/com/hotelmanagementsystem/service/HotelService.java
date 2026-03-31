@@ -7,7 +7,7 @@ public class HotelService {
 
     public void bookIfAvailable(String name, String contact, int room, int days) throws Exception {
         if (!dao.isRoomAvailable(room)) {
-            throw new Exception("Room occupied");
+            throw new Exception("Room unavailable");
         }
         dao.bookRoom(name, contact, room, days);
     }

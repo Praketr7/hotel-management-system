@@ -9,8 +9,7 @@
 
     <top>
         <VBox styleClass="header-bar">
-            <Label text="GRAND VISTA" styleClass="title-label"/>
-            <Label text="Hotel Management System" styleClass="subtitle-label"/>
+            <Label text="Hotel Management" styleClass="title-label"/>
         </VBox>
     </top>
 
