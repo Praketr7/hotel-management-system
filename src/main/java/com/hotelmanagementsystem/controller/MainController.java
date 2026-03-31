@@ -26,6 +26,7 @@ public class MainController {
     @FXML private TextField        roomNoField;
     @FXML private ComboBox<String> roomTypeBox;
     @FXML private TextField        priceField;
+    @FXML private TextField        deleteRoomField;
 
     // ── Customer booking fields ───────────────────────────────
     @FXML private TextField customerNameField;
@@ -108,6 +109,22 @@ public class MainController {
 
         } catch (NumberFormatException e) {
             showAlert("Invalid room number or price.");
+        } catch (Exception e) {
+            showAlert("Error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteRoom() {
+        try {
+            int roomNo = Integer.parseInt(deleteRoomField.getText().trim());
+            dao.deleteRoom(roomNo);
+            showAlert("Room " + roomNo + " deleted successfully.");
+            deleteRoomField.clear();
+            refreshRoomsTable();
+
+        } catch (NumberFormatException e) {
+            showAlert("Invalid room number.");
         } catch (Exception e) {
             showAlert("Error: " + e.getMessage());
         }

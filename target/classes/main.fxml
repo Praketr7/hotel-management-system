@@ -38,6 +38,17 @@
                                         styleClass="button-primary" maxWidth="Infinity"/>
                             </VBox>
 
+                            <!-- Delete Room Card -->
+                            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="DELETE ROOM" styleClass="card-title"/>
+                                <Separator/>
+                                <Label text="Room Number" styleClass="field-label"/>
+                                <TextField fx:id="deleteRoomField" promptText="e.g. 101"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Delete Room" onAction="#handleDeleteRoom"
+                                        styleClass="button-danger" maxWidth="Infinity"/>
+                            </VBox>
+
                             <!-- Analytics Card -->
                             <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
                                 <Label text="ANALYTICS" styleClass="card-title"/>

@@ -60,6 +60,15 @@ public class HotelDAO {
                 roomNumber, type, price));
     }
 
+    public void deleteRoom(int roomNumber) throws Exception {
+        try (Connection conn = DB.connect();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM rooms WHERE room_number=?")) {
+            ps.setInt(1, roomNumber);
+            ps.executeUpdate();
+        }
+        writeLog(String.format("ROOM DELETED   | Room %-4d", roomNumber));
+    }
+
     public boolean isRoomAvailable(int roomNumber) throws Exception {
         try (Connection conn = DB.connect();
              PreparedStatement ps = conn.prepareStatement(
