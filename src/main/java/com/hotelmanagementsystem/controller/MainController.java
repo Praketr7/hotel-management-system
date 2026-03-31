@@ -14,15 +14,18 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class MainController {
 
     // ── Manager fields ────────────────────────────────────────
-    @FXML private TextField      roomNoField;
+    @FXML private TextField        roomNoField;
     @FXML private ComboBox<String> roomTypeBox;
-    @FXML private TextField      priceField;
-    @FXML private Label          analyticsLabel;
+    @FXML private TextField        priceField;
 
     // ── Customer booking fields ───────────────────────────────
     @FXML private TextField customerNameField;
@@ -46,6 +49,7 @@ public class MainController {
 
     private final HotelDAO     dao     = new HotelDAO();
     private final HotelService service = new HotelService();
+    private static final String LOG_FILE = "hotel_log.txt";
 
     @FXML
     public void initialize() {
@@ -91,9 +95,9 @@ public class MainController {
     @FXML
     private void handleAddRoom() {
         try {
-            int roomNo    = Integer.parseInt(roomNoField.getText().trim());
-            String type   = roomTypeBox.getValue();
-            double price  = Double.parseDouble(priceField.getText().trim());
+            int roomNo   = Integer.parseInt(roomNoField.getText().trim());
+            String type  = roomTypeBox.getValue();
+            double price = Double.parseDouble(priceField.getText().trim());
 
             if (type == null || type.isEmpty()) { showAlert("Please select a room type."); return; }
 
@@ -124,6 +128,19 @@ public class MainController {
         }
     }
 
+    @FXML
+    private void handleViewLog() {
+        try {
+            Path logPath = Paths.get(LOG_FILE);
+            String content = Files.exists(logPath)
+                    ? Files.readString(logPath)
+                    : "(No activity recorded yet.)";
+            showLogDialog(content);
+        } catch (IOException e) {
+            showAlert("Could not read log file: " + e.getMessage());
+        }
+    }
+
     // ── Customer actions ──────────────────────────────────────
 
     @FXML
@@ -135,11 +152,6 @@ public class MainController {
             int days       = Integer.parseInt(daysField.getText().trim());
 
             if (name.isEmpty() || contact.isEmpty()) { showAlert("Guest name and contact are required."); return; }
-
-            if (!contact.matches("\\d{10}")) {
-                showAlert("Phone number must be exactly 10 digits.");
-                return;
-            }
 
             service.bookIfAvailable(name, contact, roomNo, days);
             showAlert("Room " + roomNo + " booked for " + name + " (" + days + " days).");
@@ -191,6 +203,144 @@ public class MainController {
         }
     }
 
+    // ── Log dialog ────────────────────────────────────────────
+
+    private void showLogDialog(String content) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.UNDECORATED);
+
+        VBox root = new VBox(0);
+        root.setStyle("-fx-background-color: #111720; -fx-border-color: #c9a84c; -fx-border-width: 1;");
+        root.setPrefWidth(680);
+        root.setPrefHeight(500);
+
+        // Header
+        HBox header = new HBox();
+        header.setStyle("-fx-background-color: #161b26; -fx-padding: 14 20;");
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label title = new Label("ACTIVITY LOG");
+        title.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 13px; -fx-font-weight: 500; " +
+                       "-fx-text-fill: #c9a84c; -fx-letter-spacing: 0.1em;");
+
+        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label fileLbl = new Label("hotel_log.txt");
+        fileLbl.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 11px; -fx-text-fill: #4a5568;");
+
+        Region spacer2 = new Region(); spacer2.setPrefWidth(16);
+
+        Button close = new Button("✕");
+        close.setStyle("-fx-background-color: transparent; -fx-text-fill: #6b7280; " +
+                       "-fx-border-color: transparent; -fx-cursor: hand; -fx-font-size: 14px;");
+        close.setOnAction(e -> dialog.close());
+
+        header.getChildren().addAll(title, spacer, fileLbl, spacer2, close);
+
+        // Accent line
+        HBox accent = new HBox();
+        accent.setPrefHeight(1);
+        accent.setStyle("-fx-background-color: #2a3141;");
+
+        // Log content
+        TextArea logArea = new TextArea(content);
+        logArea.setEditable(false);
+        logArea.setWrapText(false);
+        logArea.setStyle(
+            "-fx-background-color: #0a0e17; " +
+            "-fx-text-fill: #a8b4c8; " +
+            "-fx-font-family: 'Courier New'; " +
+            "-fx-font-size: 12px; " +
+            "-fx-border-color: transparent; " +
+            "-fx-background-insets: 0; " +
+            "-fx-padding: 14 16;"
+        );
+        logArea.getStyleClass().add("log-area");
+        VBox.setVgrow(logArea, Priority.ALWAYS);
+
+        // Color-code lines by type
+        // (TextArea doesn't support per-line coloring natively — we use a ListView instead)
+        root.getChildren().remove(logArea);
+
+        ListView<String> logList = new ListView<>();
+        logList.setStyle(
+            "-fx-background-color: #0a0e17; " +
+            "-fx-border-color: transparent; " +
+            "-fx-font-family: 'Courier New'; " +
+            "-fx-font-size: 12px;"
+        );
+        VBox.setVgrow(logList, Priority.ALWAYS);
+
+        // Parse lines and add
+        String[] lines = content.split("\n");
+        for (String line : lines) {
+            logList.getItems().add(line);
+        }
+
+        // Cell factory for color coding
+        logList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("-fx-background-color: #0a0e17;");
+                    return;
+                }
+                setText(item);
+                String base = "-fx-font-family: 'Courier New'; -fx-font-size: 12px; " +
+                              "-fx-background-color: #0a0e17; -fx-padding: 3 12;";
+                if (item.contains("BOOKING")) {
+                    setStyle(base + "-fx-text-fill: #6fcf97;");
+                } else if (item.contains("CHECKOUT")) {
+                    setStyle(base + "-fx-text-fill: #7eb8f7;");
+                } else if (item.contains("BILL VIEWED")) {
+                    setStyle(base + "-fx-text-fill: #c9a84c;");
+                } else if (item.contains("ROOM ADDED")) {
+                    setStyle(base + "-fx-text-fill: #b39ddb;");
+                } else {
+                    setStyle(base + "-fx-text-fill: #4a5568;");
+                }
+            }
+        });
+
+        // Scroll to bottom
+        if (!logList.getItems().isEmpty()) {
+            logList.scrollTo(logList.getItems().size() - 1);
+        }
+
+        // Footer legend
+        HBox legend = new HBox(20);
+        legend.setAlignment(Pos.CENTER_LEFT);
+        legend.setPadding(new Insets(10, 20, 12, 20));
+        legend.setStyle("-fx-background-color: #0d1117; -fx-border-color: #2a3141; -fx-border-width: 1 0 0 0;");
+        legend.getChildren().addAll(
+            legendDot("#6fcf97", "Booking"),
+            legendDot("#7eb8f7", "Checkout"),
+            legendDot("#c9a84c", "Bill"),
+            legendDot("#b39ddb", "Room Added")
+        );
+
+        root.getChildren().addAll(header, accent, logList, legend);
+
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private HBox legendDot(String color, String label) {
+        HBox box = new HBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
+        Label dot = new Label("●");
+        dot.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 10px;");
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 11px; -fx-text-fill: #6b7280;");
+        box.getChildren().addAll(dot, lbl);
+        return box;
+    }
+
     // ── Analytics dialog ──────────────────────────────────────
 
     private void showAnalyticsDialog(HotelDAO.Analytics a) {
@@ -222,10 +372,10 @@ public class MainController {
         grid.setPadding(new Insets(20));
         grid.getColumnConstraints().addAll(colPct(50), colPct(50));
 
-        grid.add(statCard("Total Bookings",  String.valueOf(a.totalBookings),          "#c9a84c"), 0, 0);
-        grid.add(statCard("Total Revenue",   String.format("₹%.2f", a.totalRevenue),  "#6fcf97"), 1, 0);
-        grid.add(statCard("Rooms Occupied",  String.valueOf(a.occupiedRooms),          "#e57373"), 0, 1);
-        grid.add(statCard("Rooms Available", String.valueOf(a.availableRooms),         "#7eb8f7"), 1, 1);
+        grid.add(statCard("Total Bookings",  String.valueOf(a.totalBookings),         "#c9a84c"), 0, 0);
+        grid.add(statCard("Total Revenue",   String.format("₹%.2f", a.totalRevenue), "#6fcf97"), 1, 0);
+        grid.add(statCard("Rooms Occupied",  String.valueOf(a.occupiedRooms),         "#e57373"), 0, 1);
+        grid.add(statCard("Rooms Available", String.valueOf(a.availableRooms),        "#7eb8f7"), 1, 1);
 
         // Divider
         HBox divider = new HBox();
@@ -244,10 +394,10 @@ public class MainController {
         double maxRev = a.typeRevenues.stream().mapToDouble(Double::doubleValue).max().orElse(1);
 
         for (int i = 0; i < a.typeNames.size(); i++) {
-            String type  = a.typeNames.get(i);
-            int    cnt   = a.typeCounts.get(i);
-            double rev   = a.typeRevenues.get(i);
-            double pct   = maxRev > 0 ? rev / maxRev : 0;
+            String type = a.typeNames.get(i);
+            int    cnt  = a.typeCounts.get(i);
+            double rev  = a.typeRevenues.get(i);
+            double pct  = maxRev > 0 ? rev / maxRev : 0;
 
             VBox row = new VBox(5);
 
@@ -259,13 +409,11 @@ public class MainController {
             revLbl.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 12px; -fx-text-fill: #6b7280;");
             meta.getChildren().addAll(typeLbl, rowSpacer, revLbl);
 
-            // Bar background
             StackPane barBg = new StackPane();
             barBg.setStyle("-fx-background-color: #1e2536; -fx-background-radius: 3;");
             barBg.setPrefHeight(6);
             barBg.setMaxWidth(Double.MAX_VALUE);
 
-            // Bar fill
             HBox barFill = new HBox();
             barFill.setStyle("-fx-background-color: #c9a84c; -fx-background-radius: 3;");
             barFill.setPrefHeight(6);
@@ -307,19 +455,17 @@ public class MainController {
         billHeader.setAlignment(Pos.CENTER);
         billHeader.setPadding(new Insets(28, 20, 20, 20));
         billHeader.setStyle("-fx-background-color: #161b26;");
-        Label hotelName = new Label("GRAND VISTA");
+        Label hotelName = new Label("SAPHIRE CROWN");
         hotelName.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 20px; -fx-font-weight: 500; " +
                            "-fx-text-fill: #c9a84c; -fx-letter-spacing: 0.15em;");
         Label hotelSub = new Label("Hotel Management  ·  Official Receipt");
         hotelSub.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 11px; -fx-text-fill: #4a5568;");
         billHeader.getChildren().addAll(hotelName, hotelSub);
 
-        // Gold accent line
         HBox accentLine = new HBox();
         accentLine.setPrefHeight(1);
         accentLine.setStyle("-fx-background-color: #c9a84c; -fx-opacity: 0.5;");
 
-        // Guest details section
         VBox guestBox = new VBox(10);
         guestBox.setPadding(new Insets(20, 24, 16, 24));
         guestBox.getChildren().addAll(
@@ -332,21 +478,17 @@ public class MainController {
                        .format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")))
         );
 
-        // Dashed separator
         HBox dash = new HBox();
         dash.setPrefHeight(1);
         dash.setStyle("-fx-background-color: #2a3141;");
-        dash.setMargin(dash, new Insets(0, 24, 0, 24));
 
-        // Calculation section
         VBox calcBox = new VBox(10);
         calcBox.setPadding(new Insets(16, 24, 16, 24));
         calcBox.getChildren().addAll(
-            billRow("Room Rate",   String.format("₹%.2f / day", b.pricePerDay)),
-            billRow("Duration",    b.days + " day" + (b.days > 1 ? "s" : ""))
+            billRow("Room Rate", String.format("₹%.2f / day", b.pricePerDay)),
+            billRow("Duration",  b.days + " day" + (b.days > 1 ? "s" : ""))
         );
 
-        // Total row
         HBox totalBox = new HBox();
         totalBox.setAlignment(Pos.CENTER_LEFT);
         totalBox.setPadding(new Insets(16, 24, 16, 24));
@@ -360,12 +502,11 @@ public class MainController {
                           "-fx-font-weight: 500; -fx-text-fill: #c9a84c;");
         totalBox.getChildren().addAll(totalLabel, tSpacer, totalAmt);
 
-        // Footer
         VBox footer = new VBox(10);
         footer.setAlignment(Pos.CENTER);
         footer.setPadding(new Insets(18, 20, 22, 20));
         footer.setStyle("-fx-background-color: #0d1117;");
-        Label thankYou = new Label("Thank you for staying with us at Grand Vista.");
+        Label thankYou = new Label("Thank you for staying with us at Saphire Crown.");
         thankYou.setStyle("-fx-font-family: 'Jost'; -fx-font-size: 11px; -fx-text-fill: #4a5568;");
         Button closeBtn = new Button("Close Receipt");
         closeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: #2e3a52; " +
@@ -430,9 +571,8 @@ public class MainController {
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
         alert.setHeaderText(null);
-        alert.setTitle("Grand Vista");
-        alert.getDialogPane().setStyle(
-            "-fx-background-color: #161b26; -fx-font-family: 'Jost';");
+        alert.setTitle("Saphire Crown Hotel");
+        alert.getDialogPane().setStyle("-fx-background-color: #161b26; -fx-font-family: 'Jost';");
         alert.getDialogPane().lookup(".content.label").setStyle(
             "-fx-text-fill: #e8dcc8; -fx-font-family: 'Jost'; -fx-font-size: 13px;");
         alert.showAndWait();

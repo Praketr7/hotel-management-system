@@ -1,0 +1,6 @@
+[31-03-2026 14:15:17]  ROOM ADDED     | Room 104  | Type: Suite    | Rate: ₹3500.00/day
+[31-03-2026 14:15:36]  BOOKING        | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Total: ₹5000.00
+[31-03-2026 14:16:01]  BILL VIEWED    | Room 101  | Guest: Praket               | Total: ₹5000.00
+[31-03-2026 14:16:06]  CHECKOUT       | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Bill: ₹5000.00
+[31-03-2026 14:16:40]  BOOKING        | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Total: ₹5000.00
+[31-03-2026 14:16:53]  BILL VIEWED    | Room 101  | Guest: Praket               | Total: ₹5000.00

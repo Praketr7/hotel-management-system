@@ -3,13 +3,21 @@ package com.hotelmanagementsystem.dao;
 import com.hotelmanagementsystem.model.Room;
 import com.hotelmanagementsystem.util.DB;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HotelDAO {
+
+    private static final String LOG_FILE = "hotel_log.txt";
+    private static final DateTimeFormatter LOG_FMT =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public HotelDAO() {
         try (Connection conn = DB.connect();
@@ -28,6 +36,18 @@ public class HotelDAO {
         }
     }
 
+    // ── Logging ───────────────────────────────────────────────
+
+    private void writeLog(String entry) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(LOG_FILE, true))) {
+            pw.println("[" + LocalDateTime.now().format(LOG_FMT) + "]  " + entry);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ── Room ops ──────────────────────────────────────────────
+
     public void addRoom(int roomNumber, String type, double price) throws Exception {
         try (Connection conn = DB.connect();
              PreparedStatement ps = conn.prepareStatement("INSERT INTO rooms VALUES (?, ?, ?, 1)")) {
@@ -36,6 +56,8 @@ public class HotelDAO {
             ps.setDouble(3, price);
             ps.executeUpdate();
         }
+        writeLog(String.format("ROOM ADDED     | Room %-4d | Type: %-8s | Rate: ₹%.2f/day",
+                roomNumber, type, price));
     }
 
     public boolean isRoomAvailable(int roomNumber) throws Exception {
@@ -85,6 +107,11 @@ public class HotelDAO {
                 updatePs.executeUpdate();
 
                 conn.commit();
+
+                writeLog(String.format(
+                        "BOOKING        | Room %-4d | Guest: %-20s | Contact: %-15s | Days: %d | Total: ₹%.2f",
+                        roomNumber, name, contact, days, total));
+
             } catch (Exception e) {
                 conn.rollback();
                 throw e;
@@ -95,7 +122,7 @@ public class HotelDAO {
     public void checkoutWithVerification(int roomNumber, String name, String contact) throws Exception {
         try (Connection conn = DB.connect()) {
             PreparedStatement ps = conn.prepareStatement(
-                    "SELECT c.name, c.contact FROM bookings b " +
+                    "SELECT c.name, c.contact, b.total_bill, b.days FROM bookings b " +
                     "JOIN customers c ON b.customer_id = c.customer_id " +
                     "WHERE b.room_number = ? AND b.status = 'BOOKED' " +
                     "ORDER BY b.booking_id DESC LIMIT 1");
@@ -106,6 +133,8 @@ public class HotelDAO {
 
             String dbName    = rs.getString("name").trim();
             String dbContact = rs.getString("contact").trim();
+            double bill      = rs.getDouble("total_bill");
+            int    days      = rs.getInt("days");
 
             if (!dbName.equalsIgnoreCase(name.trim()) || !dbContact.equals(contact.trim()))
                 throw new Exception("Name or contact does not match booking records.");
@@ -119,6 +148,10 @@ public class HotelDAO {
                     "UPDATE bookings SET status='CHECKED_OUT' WHERE room_number=? AND status='BOOKED'");
             updateBooking.setInt(1, roomNumber);
             updateBooking.executeUpdate();
+
+            writeLog(String.format(
+                    "CHECKOUT       | Room %-4d | Guest: %-20s | Contact: %-15s | Days: %d | Bill: ₹%.2f",
+                    roomNumber, dbName, dbContact, days, bill));
         }
     }
 
@@ -153,6 +186,11 @@ public class HotelDAO {
             b.totalBill    = rs.getDouble("total_bill");
             b.checkInDate  = LocalDate.now().minusDays(b.days)
                                .format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+
+            writeLog(String.format(
+                    "BILL VIEWED    | Room %-4d | Guest: %-20s | Total: ₹%.2f",
+                    roomNumber, dbName, b.totalBill));
+
             return b;
         }
     }

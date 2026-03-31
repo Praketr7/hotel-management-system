@@ -1,6 +1,7 @@
 com\hotelmanagementsystem\model\Booking.class
 com\hotelmanagementsystem\MainApp.class
 com\hotelmanagementsystem\dao\HotelDAO.class
+com\hotelmanagementsystem\controller\MainController$3.class
 com\hotelmanagementsystem\util\DB.class
 com\hotelmanagementsystem\model\Room.class
 com\hotelmanagementsystem\dao\HotelDAO$BillDetails.class

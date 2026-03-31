@@ -9,7 +9,7 @@
 
     <top>
         <VBox styleClass="header-bar">
-            <Label text="Hotel Management" styleClass="title-label"/>
+            <Label text="Saphire Crown Hotel" styleClass="title-label"/>
         </VBox>
     </top>
 
@@ -43,10 +43,11 @@
                                 <Label text="ANALYTICS" styleClass="card-title"/>
                                 <Separator/>
                                 <Label text="View detailed hotel performance stats including revenue by room type, occupancy, and bookings."
-                                       styleClass="field-label" wrapText="true"/>
+                                    styleClass="field-label" wrapText="true"/>
                                 <Region VBox.vgrow="ALWAYS"/>
                                 <Button text="Load Analytics" onAction="#handleAnalytics"
                                         styleClass="button-primary" maxWidth="Infinity"/>
+                                <Button text="View Activity Log" onAction="#handleViewLog" maxWidth="Infinity"/>
                             </VBox>
 
                         </HBox>
