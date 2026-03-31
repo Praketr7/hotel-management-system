@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.hotelmanagementsystem.controller.MainController"
+            stylesheets="@style.css">
+
+    <top>
+        <VBox styleClass="header-bar">
+            <Label text="GRAND VISTA" styleClass="title-label"/>
+            <Label text="Hotel Management System" styleClass="subtitle-label"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+
+                <!-- ══ MANAGER TAB ══ -->
+                <Tab text="  Manager  ">
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <HBox spacing="20" styleClass="section-box">
+
+                            <!-- Add Room Card -->
+                            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="ADD ROOM" styleClass="card-title"/>
+                                <Separator/>
+                                <Label text="Room Number" styleClass="field-label"/>
+                                <TextField fx:id="roomNoField" promptText="e.g. 101"/>
+                                <Label text="Room Type" styleClass="field-label"/>
+                                <ComboBox fx:id="roomTypeBox" promptText="Select type" maxWidth="Infinity"/>
+                                <Label text="Price Per Day (₹)" styleClass="field-label"/>
+                                <TextField fx:id="priceField" promptText="e.g. 2500"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Add Room" onAction="#handleAddRoom"
+                                        styleClass="button-primary" maxWidth="Infinity"/>
+                            </VBox>
+
+                            <!-- Analytics Card -->
+                            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="ANALYTICS" styleClass="card-title"/>
+                                <Separator/>
+                                <Label text="View detailed hotel performance stats including revenue by room type, occupancy, and bookings."
+                                       styleClass="field-label" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Load Analytics" onAction="#handleAnalytics"
+                                        styleClass="button-primary" maxWidth="Infinity"/>
+                            </VBox>
+
+                        </HBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- ══ CUSTOMER TAB ══ -->
+                <Tab text="  Customer  ">
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <HBox spacing="20" styleClass="section-box">
+
+                            <!-- Book Room Card -->
+                            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="BOOK A ROOM" styleClass="card-title"/>
+                                <Separator/>
+                                <Label text="Full Name" styleClass="field-label"/>
+                                <TextField fx:id="customerNameField" promptText="Guest Name"/>
+                                <Label text="Contact Number" styleClass="field-label"/>
+                                <TextField fx:id="contactField" promptText="Phone / Email"/>
+                                <Label text="Room Number" styleClass="field-label"/>
+                                <TextField fx:id="bookRoomField" promptText="e.g. 101"/>
+                                <Label text="Number of Days" styleClass="field-label"/>
+                                <TextField fx:id="daysField" promptText="e.g. 3"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Book Room" onAction="#handleBookRoom"
+                                        styleClass="button-primary" maxWidth="Infinity"/>
+                            </VBox>
+
+                            <!-- Checkout Card -->
+                            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                                <Label text="CHECKOUT &amp; BILLING" styleClass="card-title"/>
+                                <Separator/>
+                                <Label text="Guest Name (verification)" styleClass="field-label"/>
+                                <TextField fx:id="checkoutNameField" promptText="Registered Guest Name"/>
+                                <Label text="Contact (verification)" styleClass="field-label"/>
+                                <TextField fx:id="checkoutContactField" promptText="Registered Contact"/>
+                                <Label text="Room Number" styleClass="field-label"/>
+                                <TextField fx:id="checkoutRoomField" promptText="Room to checkout"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button text="Generate Bill" onAction="#handleBill" maxWidth="Infinity"/>
+                                <Button text="Checkout" onAction="#handleCheckout"
+                                        styleClass="button-danger" maxWidth="Infinity"/>
+                            </VBox>
+
+                        </HBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- ══ ROOMS TAB ══ -->
+                <Tab text="  Rooms  ">
+                    <VBox styleClass="section-box" spacing="12">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="ROOM AVAILABILITY" styleClass="card-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Refresh" onAction="#handleViewRooms"/>
+                        </HBox>
+                        <Separator/>
+                        <TableView fx:id="roomsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colRoomNo"  text="Room No."  prefWidth="100"/>
+                                <TableColumn fx:id="colType"    text="Type"      prefWidth="130"/>
+                                <TableColumn fx:id="colPrice"   text="Price/Day" prefWidth="130"/>
+                                <TableColumn fx:id="colStatus"  text="Status"    prefWidth="120"/>
+                                <TableColumn fx:id="colGuest"   text="Guest"     prefWidth="160"/>
+                                <TableColumn fx:id="colContact" text="Contact"   prefWidth="150"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>
