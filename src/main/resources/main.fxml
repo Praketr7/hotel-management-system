@@ -9,7 +9,7 @@
 
     <top>
         <VBox styleClass="header-bar">
-            <Label text="Saphire Crown Hotel" styleClass="title-label"/>
+            <Label text="Hotel Management" styleClass="title-label"/>
         </VBox>
     </top>
 

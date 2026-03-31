@@ -4,3 +4,13 @@
 [31-03-2026 14:16:06]  CHECKOUT       | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Bill: ₹5000.00
 [31-03-2026 14:16:40]  BOOKING        | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Total: ₹5000.00
 [31-03-2026 14:16:53]  BILL VIEWED    | Room 101  | Guest: Praket               | Total: ₹5000.00
+[31-03-2026 14:26:07]  BILL VIEWED    | Room 101  | Guest: Praket               | Total: ₹5000.00
+[31-03-2026 14:26:19]  CHECKOUT       | Room 101  | Guest: Praket               | Contact: 8790655808      | Days: 2 | Bill: ₹5000.00
+[31-03-2026 14:53:59]  BOOKING        | Room 104  | Guest: Praket Reddy         | Contact: 8790655808      | Days: 2 | Total: ₹7000.00
+[31-03-2026 14:54:11]  BILL VIEWED    | Room 104  | Guest: Praket Reddy         | Total: ₹7000.00
+[31-03-2026 14:54:51]  CHECKOUT       | Room 104  | Guest: Praket Reddy         | Contact: 8790655808      | Days: 2 | Bill: ₹7000.00
+[31-03-2026 15:32:40]  ROOM ADDED     | Room 105  | Type: Suite    | Rate: ₹6000.00/day
+[31-03-2026 15:33:07]  BOOKING        | Room 101  | Guest: Praket Reddy         | Contact: 8790655808      | Days: 2 | Total: ₹5000.00
+[31-03-2026 15:33:29]  BILL VIEWED    | Room 101  | Guest: Praket Reddy         | Total: ₹5000.00
+[31-03-2026 15:34:01]  BILL VIEWED    | Room 101  | Guest: Praket Reddy         | Total: ₹5000.00
+[31-03-2026 15:34:04]  CHECKOUT       | Room 101  | Guest: Praket Reddy         | Contact: 8790655808      | Days: 2 | Bill: ₹5000.00
